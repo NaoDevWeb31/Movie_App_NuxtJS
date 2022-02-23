@@ -3,10 +3,64 @@
     <!-- Hero -->
     <Hero />
 
+    <!-- Search -->
+    <div class="container search">
+      <input
+        v-model.lazy="searchInput"
+        type="text"
+        placeholder="Search"
+        @keyup.enter="$fetch"
+      />
+      <button v-show="searchInput !== ''" class="button" @click="clearSearch">
+        Clear Search
+      </button>
+    </div>
+
     <!-- Movies -->
     <div class="container movies">
-      <div id="movie-grid" class="movies-grid">
-        <div class="movie" v-for="(movie, index) in movies" :key="index">
+      <!-- Searched Movies -->
+      <div v-if="searchInput !== ''" id="movie-grid" class="movies-grid">
+        <div
+          v-for="(movie, index) in searchedMovies"
+          :key="index"
+          class="movie"
+        >
+          <div class="movie-img">
+            <img
+              :src="`https://image.tmdb.org/t/p/w500/${movie.poster_path}`"
+              :alt="`${movie.title} poster`"
+            />
+            <p class="review">{{ movie.vote_average }}</p>
+            <div class="overview">{{ movie.overview }}</div>
+          </div>
+          <div class="info">
+            <p class="title">
+              <!-- Slice title if greater than 25 characters -->
+              {{ movie.title.slice(0, 25) }}
+              <span v-if="movie.title.length > 25">...</span>
+            </p>
+            <p class="release">
+              <!-- Convert date into string -->
+              Released:
+              {{
+                new Date(movie.release_date).toLocaleString('fr-FR', {
+                  month: 'long',
+                  day: 'numeric',
+                  year: 'numeric',
+                })
+              }}
+            </p>
+            <NuxtLink
+              class="button button-light"
+              :to="{ name: 'movies-movieid', params: { movieid: movie.id } }"
+              >Get More Info</NuxtLink
+            >
+          </div>
+        </div>
+      </div>
+      <!-- Now Streaming -->
+      <div v-else id="movie-grid" class="movies-grid">
+        <div v-for="(movie, index) in movies" :key="index" class="movie">
           <div class="movie-img">
             <img
               :src="`https://image.tmdb.org/t/p/w500/${movie.poster_path}`"
@@ -52,28 +106,66 @@ export default {
   data() {
     return {
       movies: [],
+      searchedMovies: [],
+      searchInput: '',
+      apiKey: process.env.API_SECRET,
     }
   },
   async fetch() {
-    await this.getMovies()
+    if (this.searchInput === '') {
+      await this.getMovies()
+      return
+    }
+    await this.searchMovies()
   },
   methods: {
     async getMovies() {
       const data = axios.get(
-        `https://api.themoviedb.org/3/movie/now_playing?api_key=${process.env.API_SECRET}&language=en-EN&page=1`
+        `https://api.themoviedb.org/3/movie/now_playing?api_key=${this.apiKey}&language=en-EN&page=1`
       )
       const result = await data
       result.data.results.forEach((movie) => {
         this.movies.push(movie)
       })
-      console.log(this.movies)
+    },
+    async searchMovies() {
+      const data = axios.get(
+        `https://api.themoviedb.org/3/search/movie?api_key=${this.apiKey}&language=en-EN&page=1&query=${this.searchInput}`
+      )
+      const result = await data
+      result.data.results.forEach((movie) => {
+        this.searchedMovies.push(movie)
+      })
+    },
+    clearSearch() {
+      this.searchInput = ''
+      this.searchedMovies = []
     },
   },
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .home {
+  .search {
+    display: flex;
+    padding: 32px 16px;
+    input {
+      max-width: 350px;
+      width: 100%;
+      padding: 12px 6px;
+      font-size: 14px;
+      border: none;
+      &:focus {
+        outline: none;
+      }
+    }
+    .button {
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+    }
+  }
+
   .movies {
     padding: 32px 16px;
     .movies-grid {
