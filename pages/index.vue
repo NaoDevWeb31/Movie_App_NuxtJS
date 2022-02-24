@@ -131,6 +131,7 @@ export default {
       result.data.results.forEach((movie) => {
         this.movies.push(movie)
       })
+      console.log("hi");
     },
     async searchMovies() {
       const data = axios.get(
