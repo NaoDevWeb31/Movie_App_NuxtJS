@@ -11,7 +11,7 @@
         placeholder="Search"
         @keyup.enter="$fetch"
       />
-      <button v-show="searchInput !== ''" class="button" @click="clearSearch">
+      <button v-show="searchInput !== ''" class="button" @click="clearSearch" @keyup.enter="clearSearch">
         Clear Search
       </button>
     </div>
@@ -46,7 +46,7 @@
               <!-- Convert date into string -->
               Released:
               {{
-                new Date(movie.release_date).toLocaleString('fr-FR', {
+                new Date(movie.release_date).toLocaleString('en-US', {
                   month: 'long',
                   day: 'numeric',
                   year: 'numeric',
@@ -55,7 +55,10 @@
             </p>
             <NuxtLink
               class="button button-light"
-              :to="{ name: 'movies-movieid', params: { movieid: movie.id } }"
+              :to="{
+                name: 'movies-movieid',
+                params: { movieid: movie.id, apiKey: apiKey },
+              }"
               >Get More Info</NuxtLink
             >
           </div>
@@ -82,7 +85,7 @@
               <!-- Convert date into string -->
               Released:
               {{
-                new Date(movie.release_date).toLocaleString('fr-FR', {
+                new Date(movie.release_date).toLocaleString('en-US', {
                   month: 'long',
                   day: 'numeric',
                   year: 'numeric',
@@ -91,7 +94,10 @@
             </p>
             <NuxtLink
               class="button button-light"
-              :to="{ name: 'movies-movieid', params: { movieid: movie.id } }"
+              :to="{
+                name: 'movies-movieid',
+                params: { movieid: movie.id, apiKey: apiKey },
+              }"
               >Get More Info</NuxtLink
             >
           </div>
@@ -131,7 +137,6 @@ export default {
       result.data.results.forEach((movie) => {
         this.movies.push(movie)
       })
-      console.log("hi");
     },
     async searchMovies() {
       const data = axios.get(
