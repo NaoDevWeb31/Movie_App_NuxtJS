@@ -11,7 +11,12 @@
         placeholder="Search"
         @keyup.enter="$fetch"
       />
-      <button v-show="searchInput !== ''" class="button" @click="clearSearch" @keyup.enter="clearSearch">
+      <button
+        v-show="searchInput !== ''"
+        class="button"
+        @click="clearSearch"
+        @keyup.enter="clearSearch"
+      >
         Clear Search
       </button>
     </div>
@@ -126,6 +131,24 @@ export default {
       return
     }
     await this.searchMovies()
+  },
+  head() {
+    return {
+      title: 'Movie App | Latest Streaming Movies Info',
+      meta: [
+        {
+          hid: 'description',
+          name: 'description',
+          content:
+            'Get all the latest movies on streaming, released in theaters & online',
+        },
+        {
+          hid: 'keyword',
+          name: 'keyword',
+          content: 'movies, stream, streaming',
+        },
+      ],
+    }
   },
   fetchDelay: 1000,
   methods: {
